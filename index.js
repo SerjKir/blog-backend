@@ -6,7 +6,7 @@ import {UserController, PostController} from './controllers/index.js'
 import multer from 'multer'
 import cors from 'cors'
 
-mongoose.connect('mongodb+srv://admin:admin@blog-cluster.68ikzkp.mongodb.net/blog?retryWrites=true&w=majority')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://admin:admin@blog-cluster.68ikzkp.mongodb.net/blog?retryWrites=true&w=majority')
   .then(() => console.log('DB ok'))
   .catch((error) => console.log('DB error', error))
 
@@ -46,7 +46,7 @@ app.post('/posts/', handleValidationErrors, checkAuth, postCreateValidation, Pos
 app.delete('/posts/:id', checkAuth, PostController.remove)
 app.patch('/posts/:id', handleValidationErrors, checkAuth, PostController.update)
 
-app.listen(5000, (error) => {
+app.listen(process.env.PORT || 5000, (error) => {
   if (error) {
     console.log(error)
   }
