@@ -6,7 +6,7 @@ import {UserController, PostController} from './controllers/index.js'
 import multer from 'multer'
 import cors from 'cors'
 
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://admin:admin@blog-cluster.68ikzkp.mongodb.net/blog?retryWrites=true&w=majority')
   .then(() => console.log('DB ok'))
   .catch((error) => console.log('DB error', error))
 
