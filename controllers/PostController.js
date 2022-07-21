@@ -15,7 +15,7 @@ export const create = async (req, res) => {
 
 export const getAll = async (req, res) => {
   try {
-    const posts = await PostModel.find().populate('author')
+    const posts = await PostModel.find({}).sort({createdAt: -1}).populate('author')
     res.json(posts)
   } catch (error) {
     res.status(500).json({message: 'Не удалось получить посты ', error})

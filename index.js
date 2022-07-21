@@ -2,7 +2,7 @@ import express from 'express'
 import mongoose from 'mongoose'
 import {loginValidation, postCreateValidation, registerValidation} from './middleware/validations.js'
 import {checkAuth, handleValidationErrors} from './middleware/index.js'
-import {UserController, PostController} from './controllers/index.js'
+import {UserController, PostController, CommentsController} from './controllers/index.js'
 import multer from 'multer'
 import cors from 'cors'
 import fs from 'fs'
@@ -46,6 +46,9 @@ app.get('/auth/me', checkAuth, UserController.getMe)
 app.get('/posts', PostController.getAll)
 app.get('/posts/tags', PostController.getLastTags)
 app.get('/posts/:id', PostController.getOne)
+app.get('/comments', CommentsController.getLastComments)
+app.get('/posts/:id/comments', CommentsController.getPostComments)
+app.post('/posts/:id/comments', checkAuth, CommentsController.create)
 app.post('/posts/', handleValidationErrors, checkAuth, postCreateValidation, PostController.create)
 app.delete('/posts/:id', checkAuth, PostController.remove)
 app.patch('/posts/:id', handleValidationErrors, checkAuth, PostController.update)

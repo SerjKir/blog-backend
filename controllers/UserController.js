@@ -20,7 +20,7 @@ export const register = async (req, res) => {
         _id: user._id,
       }, 'secretWord',
       {
-        expiresIn: '30d'
+        expiresIn: '24h'
       }
     )
     const {passwordHash, ...userData} = user._doc
@@ -45,7 +45,7 @@ export const login = async (req, res) => {
         _id: user._id,
       }, 'secretWord',
       {
-        expiresIn: '30d'
+        expiresIn: '24h'
       }
     )
     const {passwordHash, ...userData} = user._doc
