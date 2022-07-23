@@ -6,7 +6,8 @@ const PostSchema = new mongoose.Schema({
   tags: {type: Array, default: []},
   viewsCount: {type: Number, default: 0},
   author: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
-  imageUrl: {type: String}
+  imageUrl: {type: String},
+  comments: [{type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}]
 }, {
   timestamps: true
 })

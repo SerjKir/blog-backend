@@ -1,4 +1,5 @@
 import CommentModel from '../models/Comment.js'
+import PostModel from '../models/Post.js'
 
 export const create = async (req, res) => {
   try {
@@ -8,6 +9,9 @@ export const create = async (req, res) => {
       text, author: req.userId, post
     })
     await comment.save()
+    await PostModel.findByIdAndUpdate(post, {
+      $push: {comments: comment}
+    })
     res.json(comment)
   } catch (error) {
     res.status(500).json({message: 'Не удалось добавить комментарий ', error})
@@ -28,7 +32,7 @@ export const getPostComments = async (req, res) => {
 
 export const getLastComments = async (req, res) => {
   try {
-    const comments = await CommentModel.find().populate('author').limit(3)
+    const comments = await CommentModel.find().sort('-createdAt').populate('author').limit(3)
     res.json(comments)
   } catch (error) {
     res.status(500).json({message: 'Не удалось получить комментарии ', error})

@@ -34,13 +34,11 @@ app.use('/uploads', express.static('uploads'))
 
 app.post('/auth/registration', registerValidation, handleValidationErrors, UserController.register)
 app.post('/auth/login', loginValidation, handleValidationErrors, UserController.login)
-
 app.post('/upload', checkAuth, upload.single('image'), async (req, res) => {
   res.json({
     url: `/uploads/${req.file.originalname}`
   })
 })
-
 app.get('/tags', PostController.getLastTags)
 app.get('/auth/me', checkAuth, UserController.getMe)
 app.get('/posts', PostController.getAll)
