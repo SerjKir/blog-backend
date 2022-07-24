@@ -1,11 +1,11 @@
 import express from 'express'
 import mongoose from 'mongoose'
-import {loginValidation, postCreateValidation, registerValidation} from './middleware/validations.js'
-import {checkAuth, handleValidationErrors} from './middleware/index.js'
-import {UserController, PostController, CommentsController} from './controllers/index.js'
+import {checkAuth} from './middleware/index.js'
 import multer from 'multer'
 import cors from 'cors'
 import fs from 'fs'
+import authRouter from './routes/auth.router.js'
+import postRouter from './routes/post.router.js';
 
 mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://admin:admin@blog-cluster.68ikzkp.mongodb.net/blog?retryWrites=true&w=majority')
   .then(() => console.log('DB ok'))
@@ -26,30 +26,19 @@ const storage = multer.diskStorage({
     callback(null, file.originalname)
   }
 })
-
 const upload = multer({storage})
 
 app.use(express.json())
 app.use('/uploads', express.static('uploads'))
 
-app.post('/auth/registration', registerValidation, handleValidationErrors, UserController.register)
-app.post('/auth/login', loginValidation, handleValidationErrors, UserController.login)
+app.use('/auth', authRouter)
+app.use('/posts', postRouter)
+
 app.post('/upload', checkAuth, upload.single('image'), async (req, res) => {
   res.json({
     url: `/uploads/${req.file.originalname}`
   })
 })
-app.get('/tags', PostController.getLastTags)
-app.get('/auth/me', checkAuth, UserController.getMe)
-app.get('/posts', PostController.getAll)
-app.get('/posts/tags', PostController.getLastTags)
-app.get('/posts/:id', PostController.getOne)
-app.get('/comments', CommentsController.getLastComments)
-app.get('/posts/:id/comments', CommentsController.getPostComments)
-app.post('/posts/:id/comments', checkAuth, CommentsController.create)
-app.post('/posts/', handleValidationErrors, checkAuth, postCreateValidation, PostController.create)
-app.delete('/posts/:id', checkAuth, PostController.remove)
-app.patch('/posts/:id', handleValidationErrors, checkAuth, PostController.update)
 
 app.listen(process.env.PORT || 5000, (error) => {
   if (error) {

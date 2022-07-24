@@ -1,13 +1,12 @@
 import PostModel from '../models/Post.js'
 import UserModel from '../models/User.js'
 import CommentModel from '../models/Comment.js'
-import {login} from './UserController.js';
 
 export const create = async (req, res) => {
   try {
     const {title, text, imageUrl, tags} = req.body
     const post = new PostModel({
-      title, text, imageUrl, tags: tags.split(','), author: req.userId
+      title, text, imageUrl, tags: tags.split(',').map(tag => tag.trim()), author: req.userId
     })
     await post.save()
     await UserModel.findByIdAndUpdate(req.userId, {
@@ -22,6 +21,16 @@ export const create = async (req, res) => {
 export const getAll = async (req, res) => {
   try {
     const posts = await PostModel.find({}).sort({createdAt: -1}).populate('author')
+    res.json(posts)
+  } catch (error) {
+    res.status(500).json({message: 'Не удалось получить посты ', error})
+  }
+}
+
+export const getByTag = async (req, res) => {
+  try {
+    const tag = req.params.id
+    const posts = await PostModel.find({tags: tag})
     res.json(posts)
   } catch (error) {
     res.status(500).json({message: 'Не удалось получить посты ', error})
