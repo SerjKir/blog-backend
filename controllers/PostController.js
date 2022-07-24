@@ -39,9 +39,12 @@ export const getByTag = async (req, res) => {
 
 export const getLastTags = async (req, res) => {
   try {
-    const posts = await PostModel.find().limit(5)
-    const tags = posts.map(post => post.tags).flat().slice(0, 5)
-    res.json(tags)
+    const posts = await PostModel.find()
+    const tags = posts.map(post => post.tags).flat()
+    const filtered = tags.filter(function(item, pos) {
+      return tags.indexOf(item) === pos;
+    }).slice(0, 5)
+    res.json(filtered)
   } catch (error) {
     res.status(500).json({message: 'Не удалось получить тэги ', error})
   }
