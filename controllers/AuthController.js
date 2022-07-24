@@ -48,8 +48,7 @@ export const login = async (req, res) => {
         expiresIn: '24h'
       }
     )
-    const {passwordHash, ...userData} = user._doc
-    res.json({...userData, token})
+    res.json(token)
   } catch (error) {
     res.status(400).json({message: 'Не удалось войти ', error})
   }
@@ -57,12 +56,11 @@ export const login = async (req, res) => {
 
 export const getMe = async (req, res) => {
   try {
-    const user = await UserModel.findById(req.userId)
+    const user = await UserModel.findById(req.userId).select('-passwordHash')
     if (!user) {
       return res.status(404).json({message: 'Пользователь не найден'})
     }
-    const {passwordHash, ...userData} = user._doc
-    res.json(userData)
+    res.json(user)
   } catch (error) {
     res.status(400).json({message: 'Не удалось получить данные ', error})
   }
