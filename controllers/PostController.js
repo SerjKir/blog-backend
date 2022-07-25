@@ -20,8 +20,10 @@ export const create = async (req, res) => {
 
 export const getAll = async (req, res) => {
   try {
-    const posts = await PostModel.find({}).sort({createdAt: -1}).populate('author')
-    res.json(posts)
+    const {currentPage, pageLimit} = req.query
+    const posts = await PostModel.find().sort({createdAt: -1}).limit(pageLimit * currentPage).populate('author')
+    const total = await PostModel.find().count()
+    res.json({posts, total})
   } catch (error) {
     res.status(500).json({message: 'Не удалось получить посты ', error})
   }
@@ -30,8 +32,10 @@ export const getAll = async (req, res) => {
 export const getByTag = async (req, res) => {
   try {
     const tag = req.params.id
-    const posts = await PostModel.find({tags: tag}).populate('author')
-    res.json(posts)
+    const {currentPage, pageLimit} = req.query
+    const posts = await PostModel.find({tags: tag}).sort({createdAt: -1}).limit(currentPage * pageLimit).populate('author')
+    const total = await PostModel.find({tags: tag}).count()
+    res.json({posts, total})
   } catch (error) {
     res.status(500).json({message: 'Не удалось получить посты ', error})
   }
@@ -39,7 +43,7 @@ export const getByTag = async (req, res) => {
 
 export const getLastTags = async (req, res) => {
   try {
-    const posts = await PostModel.find().limit(5)
+    const posts = await PostModel.find().sort('-createdAt').limit(5)
     const tags = posts.map(post => post.tags).flat()
     const filtered = tags.filter(function(item, pos) {
       return tags.indexOf(item) === pos;
