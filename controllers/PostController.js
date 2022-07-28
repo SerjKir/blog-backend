@@ -47,7 +47,7 @@ export const getLastTags = async (req, res) => {
     const tags = posts.map(post => post.tags).flat()
     const filtered = tags.filter(function(item, pos) {
       return tags.indexOf(item) === pos;
-    }).slice(0, 5)
+    }).slice(0, req.query.tagsLimit)
     res.json(filtered)
   } catch (error) {
     res.status(500).json({message: 'Не удалось получить тэги ', error})
@@ -154,7 +154,8 @@ export const getPostComments = async (req, res) => {
 
 export const getLastComments = async (req, res) => {
   try {
-    const comments = await CommentModel.find().sort('-createdAt').populate('author').limit(3)
+
+    const comments = await CommentModel.find().sort('-createdAt').populate('author').limit(req.query.commentsLimit)
     res.json(comments)
   } catch (error) {
     res.status(500).json({message: 'Не удалось получить комментарии ', error})
