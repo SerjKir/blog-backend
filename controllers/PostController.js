@@ -20,9 +20,9 @@ export const create = async (req, res) => {
 
 export const getAll = async (req, res) => {
   try {
-    const {currentPage, pageLimit} = req.query
-    const posts = await PostModel.find().sort({createdAt: -1}).limit(pageLimit * currentPage).populate('author')
-    const total = await PostModel.find().count()
+    const {page, limit} = req.query
+    const posts = await PostModel.find().sort({createdAt: -1}).limit(limit * page).populate('author')
+    const total = await PostModel.find().countDocuments()
     res.json({posts, total})
   } catch (error) {
     res.status(500).json({message: 'Не удалось получить посты ', error})
@@ -32,9 +32,9 @@ export const getAll = async (req, res) => {
 export const getByTag = async (req, res) => {
   try {
     const tag = req.params.id
-    const {currentPage, pageLimit} = req.query
-    const posts = await PostModel.find({tags: tag}).sort({createdAt: -1}).limit(currentPage * pageLimit).populate('author')
-    const total = await PostModel.find({tags: tag}).count()
+    const {page, limit} = req.query
+    const posts = await PostModel.find({tags: tag}).sort({createdAt: -1}).limit(page * limit).populate('author')
+    const total = await PostModel.find({tags: tag}).countDocuments()
     res.json({posts, total})
   } catch (error) {
     res.status(500).json({message: 'Не удалось получить посты ', error})
@@ -47,7 +47,7 @@ export const getLastTags = async (req, res) => {
     const tags = posts.map(post => post.tags).flat()
     const filtered = tags.filter(function(item, pos) {
       return tags.indexOf(item) === pos;
-    }).slice(0, req.query.tagsLimit)
+    }).slice(0, req.query.limit)
     res.json(filtered)
   } catch (error) {
     res.status(500).json({message: 'Не удалось получить тэги ', error})
@@ -155,7 +155,7 @@ export const getPostComments = async (req, res) => {
 export const getLastComments = async (req, res) => {
   try {
 
-    const comments = await CommentModel.find().sort('-createdAt').populate('author').limit(req.query.commentsLimit)
+    const comments = await CommentModel.find().sort('-createdAt').populate('author').limit(req.query.limit)
     res.json(comments)
   } catch (error) {
     res.status(500).json({message: 'Не удалось получить комментарии ', error})
