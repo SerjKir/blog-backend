@@ -20,8 +20,9 @@ export const create = async (req, res) => {
 
 export const getAll = async (req, res) => {
   try {
-    const {page, limit} = req.query
-    const posts = await PostModel.find().sort({createdAt: -1}).limit(limit * page).populate('author')
+    const {sort, page, limit} = req.query
+    const sortParams = {[sort]: -1, [sort === 'viewsCount' ? 'commentsCount' : 'viewsCount']: -1, 'createdAt': -1}
+    const posts = await PostModel.find().sort(sortParams).limit(limit * page).populate('author')
     const total = await PostModel.find().countDocuments()
     res.json({posts, total})
   } catch (error) {
@@ -32,8 +33,9 @@ export const getAll = async (req, res) => {
 export const getByTag = async (req, res) => {
   try {
     const tag = req.params.id
-    const {page, limit} = req.query
-    const posts = await PostModel.find({tags: tag}).sort({createdAt: -1}).limit(page * limit).populate('author')
+    const {sort, page, limit} = req.query
+    const sortParams = {[sort]: -1, [sort === 'viewsCount' ? 'commentsCount' : 'viewsCount']: -1, 'createdAt': -1}
+    const posts = await PostModel.find({tags: tag}).sort(sortParams).limit(page * limit).populate('author')
     const total = await PostModel.find({tags: tag}).countDocuments()
     res.json({posts, total})
   } catch (error) {
@@ -132,6 +134,7 @@ export const createComment = async (req, res) => {
     })
     await comment.save()
     await PostModel.findByIdAndUpdate(post, {
+      $inc: {commentsCount: 1},
       $push: {comments: comment}
     })
     res.json(comment)
