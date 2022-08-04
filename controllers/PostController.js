@@ -9,10 +9,10 @@ export const create = async (req, res) => {
       title, text, imageUrl, tags: tags.split(',').map(tag => tag.trim()), author: req.userId
     })
     await post.save()
-    await UserModel.findByIdAndUpdate(req.userId, {
+    await UserModel.updateOne({_id: req.userId}, {
       $push: {posts: post}
     })
-    res.json(post)
+    res.json(post._id)
   } catch (error) {
     res.status(500).json({message: 'Не удалось создать пост ', error})
   }
@@ -62,7 +62,7 @@ export const getOne = async (req, res) => {
     PostModel.findOneAndUpdate(
       {_id: postId},
       {$inc: {viewsCount: 1}},
-      {returnDocument: 'after'},
+      {new: true},
       (error, doc) => {
         if (error) {
           return res.status(500).json({message: 'Не удалось получит пост ', error})
@@ -81,7 +81,7 @@ export const getOne = async (req, res) => {
 export const remove = async (req, res) => {
   try {
     const postId = req.params.id
-    PostModel.findOneAndDelete(
+    PostModel.deleteOne(
       {_id: postId}
       , (error, doc) => {
         if (error) {
@@ -93,7 +93,7 @@ export const remove = async (req, res) => {
       }
     )
     await CommentModel.deleteMany({post: postId})
-    await UserModel.findByIdAndUpdate(req.userId, {
+    await UserModel.updateOne({_id: req.userId}, {
       $pullAll: {
         posts: [{_id: postId}]
       }
@@ -133,7 +133,7 @@ export const createComment = async (req, res) => {
       text, author: req.userId, post
     })
     await comment.save()
-    await PostModel.findByIdAndUpdate(post, {
+    await PostModel.updateOne({_id: post}, {
       $inc: {commentsCount: 1},
       $push: {comments: comment}
     })
@@ -157,7 +157,6 @@ export const getPostComments = async (req, res) => {
 
 export const getLastComments = async (req, res) => {
   try {
-
     const comments = await CommentModel.find().sort('-createdAt').populate('author').limit(req.query.limit)
     res.json(comments)
   } catch (error) {

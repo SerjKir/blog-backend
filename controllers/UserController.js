@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 export const register = async (req, res) => {
   try {
     const {email, password, fullName, avatarUrl} = req.body
-    console.log(email)
     const candidate = await UserModel.findOne({email})
     if (candidate) {
       return res.status(400).json({message: 'Такой email уже используется '})
@@ -63,5 +62,18 @@ export const getMe = async (req, res) => {
     res.json(user)
   } catch (error) {
     res.status(400).json({message: 'Не удалось получить данные ', error})
+  }
+}
+
+export const update = async (req, res) => {
+  try {
+    const {fullName, email, avatarUrl} = req.body
+    UserModel.findByIdAndUpdate(req.userId, {fullName, avatarUrl}, {new: true}, (error, doc) => {
+      if (!error) {
+        res.json(doc)
+      }
+    })
+  } catch (error) {
+    res.status(400).json({message: 'Не удалось обновить данные пользователя ', error})
   }
 }

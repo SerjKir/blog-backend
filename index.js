@@ -4,10 +4,13 @@ import {checkAuth} from './middleware/index.js'
 import multer from 'multer'
 import cors from 'cors'
 import fs from 'fs'
-import authRouter from './routes/auth.router.js'
-import postRouter from './routes/post.router.js';
+import userRouter from './routes/user.router.js'
+import postRouter from './routes/post.router.js'
+import 'dotenv/config'
+import {v4 as uuidv4} from 'uuid'
+import UserModel from './models/User.js'
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://admin:admin@blog-cluster.68ikzkp.mongodb.net/blog?retryWrites=true&w=majority')
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('DB ok'))
   .catch((error) => console.log('DB error', error))
 
@@ -23,7 +26,7 @@ const storage = multer.diskStorage({
     callback(null, 'uploads')
   },
   filename: (_, file, callback) => {
-    callback(null, file.originalname)
+    callback(null, uuidv4() + '.' + file.originalname.split('.').pop())
   }
 })
 const upload = multer({storage})
@@ -31,13 +34,18 @@ const upload = multer({storage})
 app.use(express.json())
 app.use('/uploads', express.static('uploads'))
 
-app.use('/auth', authRouter)
+app.use('/auth', userRouter)
 app.use('/posts', postRouter)
 
 app.post('/upload', checkAuth, upload.single('image'), async (req, res) => {
   res.json({
-    url: `/uploads/${req.file.originalname}`
+    url: `/uploads/${req.file.filename}`
   })
+})
+
+app.post('/upload-avatar', checkAuth, upload.single('image'), async (req, res) => {
+  const avatarUrl = `/uploads/${req.file.filename}`
+  res.json(avatarUrl)
 })
 
 app.listen(process.env.PORT || 5000, (error) => {
