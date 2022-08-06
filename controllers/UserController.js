@@ -22,8 +22,7 @@ export const register = async (req, res) => {
         expiresIn: '24h'
       }
     )
-    const {passwordHash, ...userData} = user._doc
-    res.json({...userData, token})
+    res.json(token)
   } catch (error) {
     res.status(500).json({message: 'Не удалось зарегестрироваться', error})
   }
@@ -53,6 +52,14 @@ export const login = async (req, res) => {
   }
 }
 
+export const checkMe = async (req, res) => {
+  try {
+    return res.json(true);
+  } catch (error) {
+    res.status(400).json({message: 'Нет авторизации ', error})
+  }
+}
+
 export const getMe = async (req, res) => {
   try {
     const user = await UserModel.findById(req.userId).select('-passwordHash')
@@ -67,10 +74,10 @@ export const getMe = async (req, res) => {
 
 export const update = async (req, res) => {
   try {
-    const {fullName, email, avatarUrl} = req.body
+    const {fullName, avatarUrl} = req.body
     UserModel.findByIdAndUpdate(req.userId, {fullName, avatarUrl}, {new: true}, (error, doc) => {
       if (!error) {
-        res.json(doc)
+        res.json({success: true})
       }
     })
   } catch (error) {

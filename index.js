@@ -8,7 +8,6 @@ import userRouter from './routes/user.router.js'
 import postRouter from './routes/post.router.js'
 import 'dotenv/config'
 import {v4 as uuidv4} from 'uuid'
-import UserModel from './models/User.js'
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('DB ok'))
@@ -38,14 +37,8 @@ app.use('/auth', userRouter)
 app.use('/posts', postRouter)
 
 app.post('/upload', checkAuth, upload.single('image'), async (req, res) => {
-  res.json({
-    url: `/uploads/${req.file.filename}`
-  })
-})
-
-app.post('/upload-avatar', checkAuth, upload.single('image'), async (req, res) => {
-  const avatarUrl = `/uploads/${req.file.filename}`
-  res.json(avatarUrl)
+  const imageUrl = `/uploads/${req.file.filename}`;
+  res.json(imageUrl)
 })
 
 app.listen(process.env.PORT || 5000, (error) => {

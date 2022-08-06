@@ -13,6 +13,6 @@ export default (req, res, next) => {
     req.userId = decoded._id
     next()
   } catch (error) {
-    res.status(404).json({message: 'Нет авторизации ', error})
+    res.status(401).json({message: 'Нет авторизации ', error})
   }
 }
